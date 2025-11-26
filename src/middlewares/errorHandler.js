@@ -1,6 +1,7 @@
 const APIError = require("../units/errors");
 
 const errorHandlerMiddleware = (err, req, res, next) => {
+    console.log("🔥 Error:", err)
   if (err instanceof APIError) {
     return res.status(err.statusCode || 400).json({
       success: false,
@@ -9,7 +10,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   }
   return res.status(500).json({
     success: false,
-    message: "Api tarafında bir hata oluştu",
+    message: err.message || "Api tarafında bir hata oluştu",
   });
 };
 

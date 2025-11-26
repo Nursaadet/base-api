@@ -11,6 +11,7 @@ const register = async (req, res) => {
   const userCheck = await user.findOne({ email });
 
   if (userCheck) {
+    throw new Error("Girmiş olduğunuz mail kullanımda !", 401);
     console.log("Girmiş olduğunuz mail kullanımda !");
   }
 
