@@ -1,11 +1,22 @@
 const user = require("../models/user.model");
 const bcrypt = require("bcrypt");
-const { Response } = require("../units/response");
 const APIError = require("../units/errors");
+const { Response } = require("../units/response");
+const { createToken } = require("../middlewares/auth");
 
 const login = async (req, res) => {
-  console.log(req.body);
-  return res.json(req.body);
+  const { email, password } = req.body;
+
+  const userInfo = await user.findOne({email});
+  if (!userInfo) throw new APIError("Kullanıcı bulunamadı!", 401);
+
+  const comparePassword = await bcrypt.compare(password, userInfo.password);
+  console.log(comparePassword);
+
+  if (!comparePassword)
+    throw new APIError("Parola ya da email hatalı!", 401);
+
+  createToken(userInfo, res);
 };
 const register = async (req, res) => {
   const { email } = req.body;
@@ -14,7 +25,6 @@ const register = async (req, res) => {
 
   if (userCheck) {
     throw new APIError("Girmiş olduğunuz mail kullanımda !", 401);
-    console.log("Girmiş olduğunuz mail kullanımda !");
   }
 
   req.body.password = await bcrypt.hash(req.body.password, 10);
