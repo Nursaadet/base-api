@@ -7,14 +7,13 @@ const { createToken } = require("../middlewares/auth");
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const userInfo = await user.findOne({email});
+  const userInfo = await user.findOne({ email });
   if (!userInfo) throw new APIError("Kullanıcı bulunamadı!", 401);
 
   const comparePassword = await bcrypt.compare(password, userInfo.password);
   console.log(comparePassword);
 
-  if (!comparePassword)
-    throw new APIError("Parola ya da email hatalı!", 401);
+  if (!comparePassword) throw new APIError("Parola ya da email hatalı!", 401);
 
   createToken(userInfo, res);
 };
@@ -42,7 +41,13 @@ const register = async (req, res) => {
       throw new APIError("Kullanıcı oluşturulurken bir hata oluştu", 400);
     });
 };
+
+const me = async (req, res) => {
+  return new Response(req.user, "Kullanıcı bilgileri başarıyla getirildi").success(res)
+};
+
 module.exports = {
   login,
   register,
+  me,
 };
