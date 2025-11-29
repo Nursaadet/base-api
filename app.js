@@ -6,6 +6,8 @@ require("./src/db/dbConnection");
 const port = process.env.PORT || 5001;
 const router = require("./src/routers");
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler");
+const cors = require("cors");
+const corsOptions = require("./src/helpers/corsOptions");
 
 
 
@@ -16,6 +18,7 @@ app.use(
   express.urlencoded({ extended: true, limit: "50mb", parameterLimit: 50000 })
 );
 
+app.use(cors(corsOptions))
 
 app.use("/api", router);
 
