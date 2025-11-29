@@ -8,7 +8,7 @@ const router = require("./src/routers");
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler");
 const cors = require("cors");
 const corsOptions = require("./src/helpers/corsOptions");
-
+const mongoSanitize = require("express-mongo-sanitize");
 
 
 //middlewares
@@ -19,6 +19,12 @@ app.use(
 );
 
 app.use(cors(corsOptions))
+
+app.use(
+  mongoSanitize({
+    replaceWith: "_",
+  })
+)
 
 app.use("/api", router);
 

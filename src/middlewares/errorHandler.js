@@ -8,6 +8,10 @@ const errorHandlerMiddleware = (err, req, res, next) => {
       message: err.message || "Bir hata oluştu",
     });
   }
+  console.log(err.name)
+
+if (err.name === "CastError") console.log("test")
+
   return res.status(500).json({
     success: false,
     message: err.message || "Api tarafında bir hata oluştu",
