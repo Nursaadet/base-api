@@ -1,4 +1,3 @@
-
 const express = require("express");
 const app = express();
 require("dotenv").config();
@@ -8,31 +7,39 @@ const router = require("./src/routers");
 const errorHandlerMiddleware = require("./src/middlewares/errorHandler");
 const cors = require("cors");
 const corsOptions = require("./src/helpers/corsOptions");
-const mongoSanitize = require("express-mongo-sanitize");
+const mongoSanitize = require("mongo-sanitize");
+const Path = require("path");
 
-
-//middlewares
+// Middlewares
 app.use(express.json());
 app.use(express.json({ limit: "50mb" }));
 app.use(
   express.urlencoded({ extended: true, limit: "50mb", parameterLimit: 50000 })
 );
 
-app.use(cors(corsOptions))
+// STATIC DOSYALAR
+app.use(express.static(Path.join(__dirname, "public")));
+app.use("/uploads", express.static(Path.join(__dirname, "public/uploads")));
 
-app.use(
-  mongoSanitize({
-    replaceWith: "_",
-  })
-)
+// CORS
+app.use(cors(corsOptions));
 
+// MONGO SANITIZE
+app.use((req, res, next) => {
+  req.body = mongoSanitize(req.body);
+  req.query = mongoSanitize(req.query);
+  req.params = mongoSanitize(req.params);
+  next();
+});
+
+// ROUTER
 app.use("/api", router);
 
 app.get("/", (req, res) => {
   res.json({ message: "API is running" });
 });
 
-//hata yakalama
+// ERROR HANDLER
 app.use(errorHandlerMiddleware);
 
 app.listen(port, () => {

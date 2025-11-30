@@ -32,5 +32,10 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     let url = `image_${uniqueSuffix}.${extension}`;
     req.savedImages = [...req.savedImages, path.join(url)];
+    cb(null, url);
   },
 });
+
+const upload = multer({ storage, fileFilter }).array("images");
+
+module.exports = upload;
