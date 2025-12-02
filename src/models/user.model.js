@@ -31,7 +31,7 @@ const userShema = new mongoose.Schema(
     },
 
     time: {
-      type: Date,
+      type: String,
       default: undefined,
     },
   },

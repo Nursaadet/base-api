@@ -2,8 +2,8 @@ const router = require("express").Router();
 const multer = require("multer");
 const upload = require("../middlewares/lib/upload");
 const auth = require("./auth.routes");
-const { Response } = require("../units/response");
-const { APIError } = require("../units/errors");
+const { Response } = require("../utils/response");
+const { APIError } = require("../utils/errors");
 
 router.use(auth);
 
