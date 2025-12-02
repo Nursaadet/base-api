@@ -7,19 +7,17 @@ const sendEmail = async (mailOptions) => {
     secure: false,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
+      pass: process.env.EMAIL_PASSWORD,
     },
   });
 
-    await transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log("Error occurred while sending email:", error);
-        }
-        console.log("info :", info)
-        return true
-    
-    })
-
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Error occurred while sending email:", error);
+    }
+    console.log("info :", info);
+    return true;
+  });
 };
 
 module.exports = sendEmail;

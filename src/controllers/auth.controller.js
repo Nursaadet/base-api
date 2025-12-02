@@ -4,10 +4,11 @@ const APIError = require("../units/errors");
 const { Response } = require("../units/response");
 const { createToken } = require("../middlewares/auth");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendMail")
+const sendEmail = require("../units/sendMail");
+const moment = require("moment");
 
 const login = async (req, res) => {
-  console.log("login")
+  console.log("login");
   const { email, password } = req.body;
 
   const userInfo = await user.findOne({ email });
@@ -46,38 +47,48 @@ const register = async (req, res) => {
 };
 
 const me = async (req, res) => {
-  return new Response(req.user, "Kullanıcı bilgileri başarıyla getirildi").success(res)
+  return new Response(
+    req.user,
+    "Kullanıcı bilgileri başarıyla getirildi"
+  ).success(res);
 };
 
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
 
-  const userInfo = await user.findOne({email: email}.select("name lastName email"))
-  if (!userInfo) return new APIError("Kullanıcı bulunamadı!", 401);
+  const userInfo = await user.findOne({ email }).select("name lastName email");
+  if (!userInfo) throw new APIError("Kullanıcı bulunamadı!", 401);
 
-  console.log("userInfo: ", userInfo)
+  console.log("userInfo: ", userInfo);
 
-const resetCode = crypto.randomBytes(3).toString("hex");
+  const resetCode = crypto.randomBytes(3).toString("hex");
 
-await sendEmail({
-  from: "nursaadetozdemir@outlook.com",
-  to: userInfo.email,
-  subject: "Şifre Sıfırlama Kodu",
-  text: `Merhaba ${userInfo.name} ${userInfo.lastName}, şifre sıfırlama kodunuz: ${resetCode}`,
-})
-await user.updateOne({
-  {email},
-  {
-    reset: {
-            code: resetCode,
-            time: Date.now()
-          }
-  }
-})
-}
+  await sendEmail({
+    from: "nursaadetozdemir@outlook.com",
+    to: userInfo.email,
+    subject: "Şifre Sıfırlama Kodu",
+    text: `Merhaba ${userInfo.name} ${userInfo.lastName}, şifre sıfırlama kodunuz: ${resetCode}`,
+  });
+  await user.updateOne(
+    { email },
+    {
+      reset: {
+        code: resetCode,
+        time: moment(new Date())
+          .add(15, "minute")
+          .format("YYYY-MM-DD HH:mm:ss"),
+      },
+    }
+  );
+  return new Response(
+    true,
+    "Şifre sıfırlama kodu e-posta ile gönderildi"
+  ).success(res);
+};
 
 module.exports = {
   login,
   register,
   me,
+  forgetPassword
 };
