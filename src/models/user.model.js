@@ -21,7 +21,16 @@ const userShema = new mongoose.Schema({
     required: true,
     trim: true,
     unique: true,
+  },
+  reset: {
+    code: String,
+    default: null,
+  },
+  time: {
+    type: Date,
+    default: null,
   }
+
 },{collections: "users", timestamps: true})
 
 const user = mongoose.model("User", userShema)

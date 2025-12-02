@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const APIError = require("../units/errors");
 const { Response } = require("../units/response");
 const { createToken } = require("../middlewares/auth");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendMail")
 
 const login = async (req, res) => {
   console.log("login")
@@ -46,6 +48,33 @@ const register = async (req, res) => {
 const me = async (req, res) => {
   return new Response(req.user, "Kullanıcı bilgileri başarıyla getirildi").success(res)
 };
+
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const userInfo = await user.findOne({email: email}.select("name lastName email"))
+  if (!userInfo) return new APIError("Kullanıcı bulunamadı!", 401);
+
+  console.log("userInfo: ", userInfo)
+
+const resetCode = crypto.randomBytes(3).toString("hex");
+
+await sendEmail({
+  from: "nursaadetozdemir@outlook.com",
+  to: userInfo.email,
+  subject: "Şifre Sıfırlama Kodu",
+  text: `Merhaba ${userInfo.name} ${userInfo.lastName}, şifre sıfırlama kodunuz: ${resetCode}`,
+})
+await user.updateOne({
+  {email},
+  {
+    reset: {
+            code: resetCode,
+            time: Date.now()
+          }
+  }
+})
+}
 
 module.exports = {
   login,
