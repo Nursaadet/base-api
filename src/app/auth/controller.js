@@ -1,19 +1,23 @@
-const user = require("../models/user.model");
+const user = require("../users/model");
 const bcrypt = require("bcrypt");
-const APIError = require("../utils/errors");
-const Response = require("../utils/response");
-const { createToken, createTemporaryToken, decodedTemporaryToken } = require("../middlewares/auth");
+const APIError = require("../../utils/errors");
+const Response = require("../../utils/response");
+const {
+  createToken,
+  createTemporaryToken,
+  decodedTemporaryToken,
+} = require("../../middlewares/auth");
 
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendMail");
+const sendEmail = require("../../utils/sendMail");
 const moment = require("moment");
 
 const login = async (req, res) => {
   console.log("login");
   const { email, password } = req.body;
   const userInfo = await user.findOne({ email });
-   if (!userInfo) throw new APIError("Email yada Şifre Hatalıdır !", 401);
-   const comparePassword = await bcrypt.compare(password, userInfo.password);
+  if (!userInfo) throw new APIError("Email yada Şifre Hatalıdır !", 401);
+  const comparePassword = await bcrypt.compare(password, userInfo.password);
   console.log(comparePassword);
 
   if (!comparePassword) throw new APIError("Email yada Şifre Hatalıdır !", 401);
@@ -25,7 +29,7 @@ const register = async (req, res) => {
 
   const userCheck = await user.findOne({ email });
 
-   if (userCheck) {
+  if (userCheck) {
     throw new APIError("Girmiş Olduğunuz Email Kullanımda !", 401);
   }
 
@@ -44,11 +48,6 @@ const register = async (req, res) => {
       throw new APIError("Kullanıcı Kayıt Edilemedi !", 400);
     });
 };
-
-const me = async (req, res) => {
-  return new Response(req.user).success(res);
-};
-
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -86,11 +85,11 @@ const forgetPassword = async (req, res) => {
 };
 const resetCodeCheck = async (req, res) => {
   const { email, code } = req.body;
-   const userInfo = await user
+  const userInfo = await user
     .findOne({ email })
     .select("_id name lastname email reset");
 
-     if (!userInfo) throw new APIError("Geçersiz Kod !", 401);
+  if (!userInfo) throw new APIError("Geçersiz Kod !", 401);
 
   const dbTime = moment(userInfo.reset.time);
   const nowTime = moment(new Date());
@@ -110,7 +109,6 @@ const resetCodeCheck = async (req, res) => {
     "Şifre Sıfırlama Yapabilirsiniz"
   ).success(res);
 };
-
 const resetPassword = async (req, res) => {
   const { password, temporaryToken } = req.body;
 
@@ -118,9 +116,9 @@ const resetPassword = async (req, res) => {
 
   console.log("decodedToken : ", decodedToken);
 
-   const hashPassword = await bcrypt.hash(password, 10);
+  const hashPassword = await bcrypt.hash(password, 10);
 
-   await user.findByIdAndUpdate(
+  await user.findByIdAndUpdate(
     { _id: decodedToken._id },
     {
       reset: {
@@ -131,13 +129,12 @@ const resetPassword = async (req, res) => {
     }
   );
 
-  return new Response(decodedToken, "Şifre Sıfırlama Başarılı").success(res)
+  return new Response(decodedToken, "Şifre Sıfırlama Başarılı").success(res);
 };
 
 module.exports = {
- login,
+  login,
   register,
-  me,
   forgetPassword,
   resetCodeCheck,
   resetPassword,
